@@ -1,0 +1,57 @@
+{% extends "auth_base.html" %} {% block main %}
+<div class="container mt-4 home-page">
+  <div class="row justify-content-center">
+    <div class="col-md-6 mb-3 mb-md-0">
+      <img
+        src="{{ url_for('static', filename='images/flyer_temp.png') }}"
+        class="img-fluid"
+        alt="Company Flyer"
+      />
+    </div>
+    <div
+      class="col-md-6 d-flex flex-column justify-content-center align-items-center card"
+    >
+      <div class="card-body text-center">
+        <img
+          src="{{ url_for('static', filename='images/MileIShipping_Logo_circle.png') }}"
+          class="m-auto d-block logo-img"
+          alt="Company Logo"
+        />
+        <h2 class="card-title mt-3">Mile &quot;I&quot; Shipping</h2>
+        <hr />
+        <h5 class="card-text">Source. Click. Ship.</h5>
+        <br />
+        <div class="d-flex flex-column flex-md-row justify-content-around">
+          <a
+            href="{{ url_for('register') }}"
+            class="btn btn-success mb-2 mb-md-0"
+            >Register</a
+          >
+          <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+  * {
+    background-color: red !important;
+  }
+  .logo-img {
+    width: 150px !important;
+    height: 150px !important;
+  }
+
+  @media (max-width: 768px) {
+    .logo-img {
+      width: 50px !important;
+      height: 50px !important;
+    }
+
+    .card-body img {
+      width: 100px;
+      height: auto;
+    }
+  }
+</style>
+{% endblock %}

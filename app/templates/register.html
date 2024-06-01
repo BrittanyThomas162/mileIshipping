@@ -1,0 +1,62 @@
+{% extends "auth_base.html" %} {% block main %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title text-center">Register</h2>
+          <form method="POST" action="{{ url_for('register') }}">
+            {{ form.hidden_tag() }}
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form.first_name.label(class="form-label") }} {{
+                  form.first_name(class="form-control", placeholder="John") }}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form.last_name.label(class="form-label") }} {{
+                  form.last_name(class="form-control", placeholder="Doe") }}
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form.email.label(class="form-label") }} {{
+                  form.email(class="form-control",
+                  placeholder="john.doe@gmail.com") }}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form.phone.label(class="form-label") }} {{
+                  form.phone(class="form-control", placeholder="1234567890") }}
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form.password.label(class="form-label") }} {{
+                  form.password(class="form-control") }}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form.confirm_password.label(class="form-label") }} {{
+                  form.confirm_password(class="form-control") }}
+                </div>
+              </div>
+            </div>
+            <div class="form-group text-center m-4">
+              {{ form.submit(class="btn btn-primary") }}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
