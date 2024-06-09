@@ -1,0 +1,79 @@
+{% extends "base.html" %} {% block main %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      {% include 'flash_messages.html' %}
+      <div class="card">
+        <!-- <div class="card-header bg-secondary text-white fw-bold">
+          Add Prealert
+        </div> -->
+        <div class="card-body">
+          <h3 class="card-title text-center">Add Prealert</h3>
+          <form
+            method="POST"
+            action="{{ url_for('prealerts') }}"
+            enctype="multipart/form-data"
+          >
+            {{ form.csrf_token }}
+            <div class="mb-3">
+              {{ form.carrier.label(class="form-label") }} {{
+              form.carrier(class="form-select") }}
+            </div>
+            <div class="mb-3">
+              {{ form.tracking_number.label(class="form-label") }} {{
+              form.tracking_number(class="form-control") }}
+            </div>
+            <div class="mb-3">
+              {{ form.description.label(class="form-label") }} {{
+              form.description(class="form-control") }}
+            </div>
+            <div class="mb-3">
+              {{ form.value.label(class="form-label") }} {{
+              form.value(class="form-control") }}
+            </div>
+            <div class="mb-3">
+              {{ form.invoice.label(class="form-label") }} {{
+              form.invoice(class="form-control") }}
+            </div>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-upload"></i> {{ form.submit.label.text }}
+            </button>
+          </form>
+          <hr />
+          <h4>Prealerts</h4>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">Carrier</th>
+                <th scope="col">Tracking Number</th>
+                <th scope="col">Description</th>
+                <th scope="col">Value</th>
+                <th scope="col">Invoice</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for prealert in prealerts %}
+              <tr>
+                <td>{{ prealert.carrier }}</td>
+                <td>{{ prealert.tracking_number }}</td>
+                <td>{{ prealert.description }}</td>
+                <td>{{ prealert.value }}</td>
+                <td>
+                  {% if prealert.invoice %}
+                  <a
+                    href="{{ url_for('uploaded_file', filename=prealert.invoice) }}"
+                    target="_blank"
+                    >View Invoice</a
+                  >
+                  {% else %} N/A {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends "base.html" %} {% block main %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      {% include 'flash_messages.html' %}
+      <div class="card">
+        <div class="card-body">
+          <h3 class="card-title text-center">Shipping Rates</h3>
+          <hr />
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">Pounds</th>
+                <th scope="col">USD</th>
+                <th scope="col">JMD</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for rate in form.rates %}
+              <tr>
+                <td>{{ rate.pounds.data }}</td>
+                <td class="usd">{{ rate.usd.data }}</td>
+                <td class="jmd">{{ rate.jmd.data }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% if current_user.is_authenticated and current_user.role == 'admin'
+          %}
+          <div class="text-center mt-4">
+            <button
+              class="btn btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#updateRatesModal"
+            >
+              Update Rates
+            </button>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Update Rates Modal -->
+<div
+  class="modal fade"
+  id="updateRatesModal"
+  tabindex="-1"
+  aria-labelledby="updateRatesModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateRatesModalLabel">
+          Update Shipping Rates
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{{ url_for('update_shipping_rates') }}">
+          {{ form.csrf_token }}
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Pounds</th>
+                <th scope="col">USD</th>
+                <th scope="col">JMD</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for rate in form.rates %}
+              <tr>
+                <td>{{ rate.pounds }}</td>
+                <td>{{ rate.usd }}</td>
+                <td>{{ rate.jmd }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <div class="form-group text-center mt-4">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %} {% block js %}
+<script src="{{ url_for('static', filename='js/rates.js') }}"></script>
+{% endblock %}

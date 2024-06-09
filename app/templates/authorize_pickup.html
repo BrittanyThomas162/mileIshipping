@@ -1,0 +1,145 @@
+{% extends "base.html" %} {% block main %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      {% include 'flash_messages.html' %}
+      <div class="card">
+        <div class="card-body">
+          <h3 class="card-title text-center">Authorized Pick-Up</h3>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Telephone</th>
+                <th scope="col">ID Type</th>
+                <th scope="col">ID Number</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for person in authorized_pickup_list %}
+              <tr>
+                <td>{{ person.name }}</td>
+                <td>{{ person.telephone }}</td>
+                <td>{{ person.id_type }}</td>
+                <td>{{ person.id_number }}</td>
+                <td>
+                  <button
+                    class="btn btn-sm btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#addEditModal"
+                    data-id="{{ person.id }}"
+                    data-name="{{ person.name }}"
+                    data-telephone="{{ person.telephone }}"
+                    data-id_type="{{ person.id_type }}"
+                    data-id_number="{{ person.id_number }}"
+                  >
+                    Edit
+                  </button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <div class="text-center mt-4">
+            <button
+              class="btn btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#addEditModal"
+              data-id=""
+              data-name=""
+              data-telephone=""
+              data-id_type=""
+              data-id_number=""
+            >
+              Add
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div
+  class="modal fade"
+  id="addEditModal"
+  tabindex="-1"
+  aria-labelledby="addEditModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addEditModalLabel">
+          Add/Edit Authorized Pick-Up
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form
+          method="POST"
+          action="{{ url_for('add_edit_authorized_pickup') }}"
+        >
+          {{ form.csrf_token }}
+          <input type="hidden" id="form-id" name="id" />
+          <div class="mb-3">
+            {{ form.name.label(class="form-label") }}
+            <input
+              type="text"
+              id="form-name"
+              name="name"
+              class="form-control"
+            />
+          </div>
+          <div class="mb-3">
+            {{ form.telephone.label(class="form-label") }}
+            <input
+              type="text"
+              id="form-telephone"
+              name="telephone"
+              class="form-control"
+            />
+          </div>
+          <div class="mb-3">
+            {{ form.id_type.label(class="form-label") }}
+            <select id="form-id_type" name="id_type" class="form-select">
+              <option value="Driver's License">Driver's License</option>
+              <option value="National ID">National ID</option>
+              <option value="Other">Other</option>
+              <option value="Passport">Passport</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            {{ form.id_number.label(class="form-label") }}
+            <input
+              type="text"
+              id="form-id_number"
+              name="id_number"
+              class="form-control"
+            />
+          </div>
+          <div class="text-center">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block js %}
+<script src="{{ url_for('static', filename='js/authorize_pickup.js') }}"></script>
+{% endblock %}

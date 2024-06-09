@@ -1,5 +1,6 @@
 {% extends "base.html" %} {% block main %}
-<div class="container mt-5">
+<div class="container mt-3">
+  {% include 'flash_messages.html' %}
   <h1>Dashboard</h1>
   <p>Welcome, {{ current_user.first_name }} {{ current_user.last_name }}!</p>
   <!-- Add information display and forms for customers -->

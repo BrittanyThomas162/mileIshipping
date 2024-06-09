@@ -1,0 +1,89 @@
+{% extends "base.html" %} {% block css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/profile.css') }}"
+/>
+{% endblock %} {% block main %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      {% include 'flash_messages.html' %}
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title text-center">Profile</h2>
+          <hr />
+          <div>
+            <p><strong>First Name:</strong> {{ user.first_name }}</p>
+            <p><strong>Last Name:</strong> {{ user.last_name }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Phone Number:</strong> {{ user.phone }}</p>
+          </div>
+          <div class="text-center mt-4">
+            <button
+              class="btn btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#updateModal"
+            >
+              Update
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Update Modal -->
+<div
+  class="modal fade"
+  id="updateModal"
+  tabindex="-1"
+  aria-labelledby="updateModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateModalLabel">Update Profile</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{{ url_for('profile') }}">
+          {{ form.csrf_token }} {% include 'flash_messages.html' %}
+          <div class="form-group">
+            {{ form.first_name.label(class="form-label") }} {{
+            form.first_name(class="form-control", value=user.first_name) }}
+          </div>
+          <div class="form-group">
+            {{ form.last_name.label(class="form-label") }} {{
+            form.last_name(class="form-control", value=user.last_name) }}
+          </div>
+          <div class="form-group">
+            {{ form.email.label(class="form-label") }} {{
+            form.email(class="form-control", value=user.email) }}
+          </div>
+          <div class="form-group">
+            {{ form.phone.label(class="form-label") }} {{
+            form.phone(class="form-control", value=user.phone) }}
+          </div>
+          <div class="form-group text-center mt-4">
+            {{ form.submit(class="btn btn-primary") }}
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

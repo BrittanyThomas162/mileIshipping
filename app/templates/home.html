@@ -1,9 +1,14 @@
-{% extends "auth_base.html" %} {% block main %}
+{% extends "base.html" %} {% block css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/home.css') }}"
+/>
+{% endblock %} {% block main %}
 <div class="container mt-4 home-page">
   <div class="row justify-content-center">
     <div class="col-md-6 mb-3 mb-md-0">
       <img
-        src="{{ url_for('static', filename='images/flyer_temp.png') }}"
+        src="{{ url_for('static', filename='images/flyer_official.jpg') }}"
         class="img-fluid"
         alt="Company Flyer"
       />
@@ -14,6 +19,8 @@
       <div class="card-body text-center">
         <img
           src="{{ url_for('static', filename='images/MileIShipping_Logo_circle.png') }}"
+          width="150"
+          height="150"
           class="m-auto d-block logo-img"
           alt="Company Logo"
         />
@@ -33,25 +40,4 @@
     </div>
   </div>
 </div>
-<style>
-  * {
-    background-color: red !important;
-  }
-  .logo-img {
-    width: 150px !important;
-    height: 150px !important;
-  }
-
-  @media (max-width: 768px) {
-    .logo-img {
-      width: 50px !important;
-      height: 50px !important;
-    }
-
-    .card-body img {
-      width: 100px;
-      height: auto;
-    }
-  }
-</style>
 {% endblock %}

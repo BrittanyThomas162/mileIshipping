@@ -1,0 +1,21 @@
+.logo-img {
+    width: 150px;
+    height: 150px;
+  }
+ @media (max-width: 768px) {
+    .logo-img {
+      width: 50px;
+      height: 50px;
+    }
+
+    .card-body img {
+      width: 100px;
+      height: auto;
+    }
+    .card-body .btn {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+  }
+
+

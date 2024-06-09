@@ -1,4 +1,9 @@
-{% extends "auth_base.html" %} {% block main %}
+{% extends "base.html" %} {% block css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/login.css') }}"
+/>
+{% endblock %} {% block main %}
 <div class="container mt-4">
   <div class="row justify-content-center">
     <div class="col-md-8">
@@ -6,7 +11,7 @@
         <div class="card-body">
           <h2 class="card-title text-center">Register</h2>
           <form method="POST" action="{{ url_for('register') }}">
-            {{ form.hidden_tag() }}
+            {{ form.csrf_token }} {% include 'flash_messages.html' %}
             <div class="row">
               <div class="col-md-6">
                 <div class="form-group">
@@ -50,10 +55,13 @@
                 </div>
               </div>
             </div>
-            <div class="form-group text-center m-4">
+            <div class="form-group text-center mt-4">
               {{ form.submit(class="btn btn-primary") }}
             </div>
           </form>
+          <div class="text-center my-1 login-links">
+            <a href="{{ url_for('login') }}">Go to Login</a>
+          </div>
         </div>
       </div>
     </div>

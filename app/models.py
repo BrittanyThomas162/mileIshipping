@@ -10,15 +10,18 @@ class User(UserMixin, db.Model):
     last_name = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     phone = db.Column(db.String(20), nullable=False)
-    password_hash = db.Column(db.String(150), nullable=False)
-    role = db.Column(db.String(50), nullable=False, default='customer')  # Default to 'customer'
+    password_hash = db.Column(db.Text, nullable=False)
+    role = db.Column(db.String(50), nullable=False, default='customer')
+
+    authorized_pickup_list = db.relationship('AuthorizedPickUp', back_populates='user', lazy='dynamic')
+    prealerts = db.relationship('Prealert', backref='user', lazy=True)
 
     def __init__(self, first_name, last_name, email, phone, password, role='customer'):
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
         self.phone = phone
-        self.password_hash = generate_password_hash(password)
+        self.password_hash = generate_password_hash(password, method='pbkdf2:sha256')
         self.role = role
 
     def verify_password(self, password):
@@ -42,3 +45,33 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return '<User %r>' % (self.email)
 
+
+class ShippingRate(db.Model):
+    __tablename__ = 'shipping_rates'
+    id = db.Column(db.Integer, primary_key=True)
+    pounds = db.Column(db.String(10), unique=True, nullable=False)
+    usd = db.Column(db.Float, nullable=False)
+    jmd = db.Column(db.Float, nullable=False)
+
+
+class AuthorizedPickUp(db.Model):
+    __tablename__ = 'authorized_pickups'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    telephone = db.Column(db.String(15), nullable=False)
+    id_type = db.Column(db.String(50), nullable=False)
+    id_number = db.Column(db.String(50), nullable=False)
+
+    user = db.relationship('User', back_populates='authorized_pickup_list')
+
+
+class Prealert(db.Model):
+    __tablename__ = 'prealerts'  # Make sure the table name is correct
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    carrier = db.Column(db.String(50), nullable=False)
+    tracking_number = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(255), nullable=True)
+    value = db.Column(db.Float, nullable=True)
+    invoice = db.Column(db.String(255), nullable=True)

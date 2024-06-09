@@ -1,20 +1,17 @@
-{% extends 'auth_base.html' %} {% block css %}
-<style>
-  .login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-</style>
+{% extends 'base.html' %} {% block css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/login.css') }}"
+/>
 {% endblock %} {% block main %}
-<div class="container login-container mt-4">
+<div class="container login-container">
   <div class="row justify-content-center">
     <div class="col-md-6">
       <div class="card">
         <div class="card-body">
           <h2 class="card-title text-center">Login</h2>
           <form method="POST" action="{{ url_for('login') }}">
-            {{ form.csrf_token }}
+            {{ form.csrf_token }} {% include 'flash_messages.html' %}
             <div class="form-group">
               {{ form.email.label(class="form-label") }} {{
               form.email(class="form-control") }}
@@ -23,10 +20,18 @@
               {{ form.password.label(class="form-label") }} {{
               form.password(class="form-control") }}
             </div>
-            <div class="form-group text-center m-4">
+            <div class="form-group text-center mt-4">
               {{ form.submit(class="btn btn-primary") }}
             </div>
           </form>
+          <div class="login-links text-center">
+            <a href="{{ url_for('register') }}" class="d-block mb-1"
+              >Create Account</a
+            >
+            <a href="{{ url_for('forgot_password') }}" class="d-block"
+              >Forgot Password?</a
+            >
+          </div>
         </div>
       </div>
     </div>
