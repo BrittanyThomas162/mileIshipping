@@ -4,9 +4,6 @@
     <div class="col-md-10">
       {% include 'flash_messages.html' %}
       <div class="card">
-        <!-- <div class="card-header bg-secondary text-white fw-bold">
-          All Prealerts
-        </div> -->
         <div class="card-body">
           <h3 class="card-title text-center">All Prealerts</h3>
           <form
@@ -53,8 +50,8 @@
                 <td>
                   {% if prealert.invoice %}
                   <a
-                    href="{{ url_for('uploaded_file', filename=prealert.invoice) }}"
-                    target="_blank"
+                    href="{{ url_for('get_image', filename=prealert.invoice) }}"
+                    alt="{{ prealert.invoice }}"
                     >View Invoice</a
                   >
                   {% else %} N/A {% endif %}
