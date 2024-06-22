@@ -61,10 +61,13 @@
                 <td>
                   {% if prealert.invoice %}
                   <a
-                    href="{{ url_for('uploaded_file', filename=prealert.invoice) }}"
-                    target="_blank"
-                    >View Invoice</a
+                    href="{{ url_for('get_image', filename=prealert.invoice) }}" alt="{{image}}" 
+                  >View Invoice</a
                   >
+                  <img
+                  src="{{ url_for('get_image', filename=prealert.invoice) }}" alt="{{image}}"
+                  >View Invoice</a
+                >
                   {% else %} N/A {% endif %}
                 </td>
               </tr>

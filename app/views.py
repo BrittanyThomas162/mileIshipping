@@ -172,7 +172,7 @@ def prealerts():
         if file:
             filename = secure_filename(file.filename)
             unique_filename = f"{current_user.id}_{uuid.uuid4().hex}_{filename}"
-            file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename))
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], unique_filename))
         else:
             unique_filename = None
 
@@ -213,14 +213,24 @@ def admin_prealerts():
 
     return render_template('admin_prealerts.html', prealerts=prealerts)
 
+
+def get_uploaded_images():
+    rootdir = app.config['UPLOAD_FOLDER']
+    photo_lst = []
+    for subdir, dirs, files in os.walk(rootdir):
+        for file in files:
+            photo_lst.append(file)
+    return photo_lst
+
 @app.route('/uploads/<filename>')
-@login_required
-def uploaded_file(filename):
+def get_image(filename):
     try:
-        return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename)
+        return send_from_directory(os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER']), filename)
     except Exception as e:
         flash(f"Error retrieving file: {str(e)}", 'danger')
         return render_template('404.html')
+
+
 
 
 ###
