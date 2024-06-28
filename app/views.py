@@ -18,13 +18,13 @@ def admin_required(f):
     return decorated_function
 
 # Function to get uploaded files
-# def get_uploaded_files():
-#     rootdir = app.config['UPLOAD_FOLDER']
-#     file_lst = []
-#     for subdir, dirs, files in os.walk(rootdir):
-#         for file in files:
-#             file_lst.append(file)
-#     return file_lst
+def get_uploaded_files():
+    rootdir = app.config['UPLOAD_FOLDER']
+    file_lst = []
+    for subdir, dirs, files in os.walk(rootdir):
+        for file in files:
+            file_lst.append(file)
+    return file_lst
 
 ###
 # Routing for your application.
@@ -214,45 +214,28 @@ def admin_prealerts():
     return render_template('admin_prealerts.html', prealerts=prealerts)
 
 
-# def get_uploaded_images():
-#     rootdir = app.config['UPLOAD_FOLDER']
-#     photo_lst = []
-#     for subdir, dirs, files in os.walk(rootdir):
-#         for file in files:
-#             photo_lst.append(file)
-#     return photo_lst
 
-
-# Works to see the image
-# @app.route('/uploads/<filename>')
-# def get_image(filename):
-#     try:
-#         return send_from_directory(os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER']), filename)
-#     except Exception as e:
-#         flash(f"Error retrieving file: {str(e)}", 'danger')
-#         return render_template('404.html')
-    
-
-# @app.route('/uploads/<filename>')
-# @login_required
-# def get_image(filename):
-#     try:
-#         file_path = os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER'], filename)
-#         return render_template('view_file.html', file_path=file_path)
-#     except Exception as e:
-#         flash(f"Error retrieving file: {str(e)}", 'danger')
-#         return render_template('404.html')
+@app.route('/view-file/<filename>')
+@login_required
+def view_file(filename):
+    try:
+        file_ext = os.path.splitext(filename)[1].lower()
+        file_url = url_for('show_image', filename=filename)
+        return render_template('view_file.html', file_url=file_url, filename=filename, file_ext=file_ext)
+    except Exception as e:
+        flash(f"Error retrieving file: {str(e)}", 'danger')
+        return render_template('404.html')
 
 @app.route('/view-file/<filename>')
 @login_required
 def get_image(filename):
     try:
-        file_url = url_for('get_image', filename=filename)
-        return render_template('view_file.html', file_url=file_url, filename=filename)
+        file_url = url_for('show_image', filename=filename)
+        file_ext = os.path.splitext(filename)[1].lower()
+        return render_template('view_file.html', file_url=file_url, filename=filename, file_ext=file_ext)
     except Exception as e:
         flash(f"Error retrieving file: {str(e)}", 'danger')
         return render_template('404.html')
-    
 
 @app.route('/uploads/<filename>')
 def show_image(filename):
@@ -270,7 +253,7 @@ def download_file(filename):
     except Exception as e:
         flash(f"Error downloading file: {str(e)}", 'danger')
         return render_template('404.html')
-
+    
 
 ###
 # Login/Account Management Functions

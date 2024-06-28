@@ -50,7 +50,7 @@
                 <td>
                   {% if prealert.invoice %}
                   <a
-                    href="{{ url_for('get_image', filename=prealert.invoice) }}"
+                    href="{{ url_for('view_file', filename=prealert.invoice) }}"
                     alt="{{ prealert.invoice }}"
                     >View Invoice</a
                   >
