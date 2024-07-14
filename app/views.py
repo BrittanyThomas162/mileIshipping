@@ -3,10 +3,12 @@ from app import app, db, login_manager
 from flask import render_template, request, redirect, url_for, flash, session, abort, current_app, send_from_directory
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.utils import secure_filename
-from app.models import User, ShippingRate, AuthorizedPickUp, Prealert
-from app.forms import LoginForm, RegistrationForm, ForgotPasswordForm, ProfileForm, UpdateRatesForm, AuthorizePickUpForm, PrealertForm
+from app.models import User, ShippingRate, AuthorizedPickUp, Prealert, Package, ActionRequired
+from app.forms import LoginForm, RegistrationForm, ForgotPasswordForm, ProfileForm, UpdateRatesForm, AuthorizePickUpForm, PrealertForm, PackageForm
 from functools import wraps
 import uuid
+from datetime import datetime, timezone
+
 
 # Decorator to check if the user is an admin
 def admin_required(f):
@@ -226,16 +228,16 @@ def view_file(filename):
         flash(f"Error retrieving file: {str(e)}", 'danger')
         return render_template('404.html')
 
-@app.route('/view-file/<filename>')
-@login_required
-def get_image(filename):
-    try:
-        file_url = url_for('show_image', filename=filename)
-        file_ext = os.path.splitext(filename)[1].lower()
-        return render_template('view_file.html', file_url=file_url, filename=filename, file_ext=file_ext)
-    except Exception as e:
-        flash(f"Error retrieving file: {str(e)}", 'danger')
-        return render_template('404.html')
+# @app.route('/view-file/<filename>')
+# @login_required
+# def get_image(filename):
+#     try:
+#         file_url = url_for('show_image', filename=filename)
+#         file_ext = os.path.splitext(filename)[1].lower()
+#         return render_template('view_file.html', file_url=file_url, filename=filename, file_ext=file_ext)
+#     except Exception as e:
+#         flash(f"Error retrieving file: {str(e)}", 'danger')
+#         return render_template('404.html')
 
 @app.route('/uploads/<filename>')
 def show_image(filename):
@@ -253,6 +255,202 @@ def download_file(filename):
     except Exception as e:
         flash(f"Error downloading file: {str(e)}", 'danger')
         return render_template('404.html')
+    
+    
+@app.route('/admin/packages', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def manage_packages():
+    form = PackageForm()
+    prealerts = Prealert.query.all()
+    form.prealert_id.choices = [(0, '-- Select Prealert --')] + [(prealert.id, prealert.tracking_number) for prealert in prealerts]
+
+    if form.validate_on_submit():
+        prealert = Prealert.query.get(form.prealert_id.data) if form.prealert_id.data else None
+        
+        # Check if customer exists
+        matching_customers = User.query.filter_by(first_name=form.first_name.data, last_name=form.last_name.data).all()
+        
+        if len(matching_customers) == 1:
+            customer = matching_customers[0]
+        elif len(matching_customers) > 1:
+            # Try to match with prealert
+            if prealert and prealert.user_id in [customer.id for customer in matching_customers]:
+                customer = prealert.user
+            else:
+                reason = "Multiple customers with the same name."
+                action_needed = "Manual verification required."
+                add_to_action_required(form, reason, action_needed, user_id=None)
+                flash('Multiple customers with the same name. Manual verification required.', 'warning')
+                return redirect(url_for('manage_packages'))
+        else:
+            reason = "No matching customer found."
+            action_needed = "Contact customer or create a new account."
+            add_to_action_required(form, reason, action_needed, user_id=None)
+            flash('No matching customer found. Manual action required.', 'warning')
+            return redirect(url_for('manage_packages'))
+
+        package = Package(
+            tracking_number=prealert.tracking_number if prealert else form.tracking_number.data,
+            first_name=prealert.user.first_name if prealert else form.first_name.data,
+            last_name=prealert.user.last_name if prealert else form.last_name.data,
+            item_number=f'MIS{str(Package.query.count() + 1).zfill(6)}',
+            weight=prealert.weight if prealert else form.weight.data,
+            description=prealert.description if prealert else form.description.data,
+            status=form.status.data,
+            sender=prealert.sender if prealert else form.sender.data,
+            date_received=datetime.now(timezone.utc),
+            invoice=secure_filename(form.invoice.data.filename) if form.invoice.data else None,
+            user_id=customer.id
+        )
+        
+        db.session.add(package)
+        db.session.commit()
+
+        # Handle "Held by Customs" status
+        if form.status.data == 'Held by Customs':
+            reason = "Package held by customs."
+            action_needed = "Resolve customs issue."
+            add_to_action_required(form, reason, action_needed, user_id=customer.id)
+            flash('Package added with status "Held by Customs". Action required.', 'warning')
+        
+        flash('Package added successfully.', 'success')
+        return redirect(url_for('manage_packages'))
+    else:
+        print("Form errors:", form.errors)
+        
+    packages = Package.query.all()
+    return render_template('admin_packages.html', form=form, packages=packages)
+
+
+def add_to_action_required(form, reason, action_needed, user_id):
+    action_required = ActionRequired(
+        tracking_number=form.tracking_number.data,
+        first_name=form.first_name.data,
+        last_name=form.last_name.data,
+        item_number=f'MIS{str(ActionRequired.query.count() + 1).zfill(6)}',
+        weight=form.weight.data,
+        description=form.description.data,
+        status=form.status.data,
+        sender=form.sender.data,
+        date_received=datetime.now(timezone.utc),
+        invoice=secure_filename(form.invoice.data.filename) if form.invoice.data else None,
+        reason=reason,
+        action_needed=action_needed,
+        user_id=user_id
+    )
+    db.session.add(action_required)
+    db.session.commit()
+
+
+
+@app.route('/admin/action-required', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def action_required():
+    actions = ActionRequired.query.all()
+    
+    if request.method == 'POST':
+        action_id = request.form.get('action_id')
+        action = ActionRequired.query.get(action_id)
+        
+        # If resolved, move to Package table
+        if 'resolve' in request.form:
+            package = Package(
+                tracking_number=action.tracking_number,
+                first_name=action.first_name,
+                last_name=action.last_name,
+                item_number=action.item_number,
+                weight=action.weight,
+                description=action.description,
+                status=action.status,
+                sender=action.sender,
+                date_received=action.date_received,
+                invoice=action.invoice,
+                user_id=action.user_id
+            )
+            db.session.add(package)
+            db.session.delete(action)
+            db.session.commit()
+            flash('Action resolved and package moved to Package table.', 'success')
+        elif 'update_status' in request.form:
+            # Update the status of the action
+            action.status = request.form.get('status')
+            db.session.commit()
+            flash('Status updated successfully.', 'success')
+        elif 'update_user' in request.form:
+            # Update the user of the action
+            action.user_id = request.form.get('user_id')
+            db.session.commit()
+            flash('User updated successfully.', 'success')
+
+        return redirect(url_for('action_required'))
+    
+    users = User.query.all()
+    return render_template('admin_action_required.html', actions=actions, users=users)
+
+
+@app.route('/admin/packages/<int:package_id>/update', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def update_package(package_id):
+    package = Package.query.get_or_404(package_id)
+    form = PackageForm(obj=package)
+    prealerts = Prealert.query.all()
+    form.prealert_id.choices = [(0, '-- Select Prealert --')] + [(prealert.id, prealert.tracking_number) for prealert in prealerts]
+
+    if form.validate_on_submit():
+        package.tracking_number = form.tracking_number.data
+        package.first_name = form.first_name.data
+        package.last_name = form.last_name.data
+        package.weight = form.weight.data
+        package.description = form.description.data
+        package.status = form.status.data
+        package.sender = form.sender.data
+
+        try:
+            package.date_received = form.date_received.data
+        except ValueError:
+            flash('Invalid date format. Please enter the date in YYYY-MM-DD format.', 'danger')
+            return redirect(url_for('update_package', package_id=package_id))
+
+        if form.invoice.data:
+            package.invoice = secure_filename(form.invoice.data.filename)
+            form.invoice.data.save(os.path.join(app.config['UPLOAD_FOLDER'], package.invoice))
+
+        db.session.commit()
+        flash('Package updated successfully.', 'success')
+        return redirect(url_for('manage_packages'))
+    else:
+        print("Form errors:", form.errors)
+        
+    return render_template('admin_update_package.html', form=form, package=package)
+
+
+@app.route('/api/prealert/<int:prealert_id>', methods=['GET'])
+@login_required
+@admin_required
+def get_prealert(prealert_id):
+    prealert = Prealert.query.get_or_404(prealert_id)
+    return {
+        'tracking_number': prealert.tracking_number,
+        'first_name': prealert.user.first_name,
+        'last_name': prealert.user.last_name,
+        'description': prealert.description,
+        'sender': prealert.carrier,  # Assuming sender is the carrier
+        'invoice': prealert.invoice  # Assuming invoice is the filename
+    }
+
+
+
+
+@app.route('/packages')
+@login_required
+def view_packages():
+    packages = Package.query.filter_by(user_id=current_user.id).all()
+    return render_template('customer_packages.html', packages=packages)
+
+
     
 
 ###

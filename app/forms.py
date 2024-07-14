@@ -1,9 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, FieldList, FloatField, FormField, HiddenField, SelectField
+from wtforms import StringField, PasswordField, SubmitField, FieldList, FloatField, FormField, HiddenField, SelectField, TextAreaField, DateField
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Length, Regexp, NumberRange, Optional
 from .models import User
 from flask_login import current_user
-from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 
 
@@ -114,4 +113,26 @@ class PrealertForm(FlaskForm):
     ])
     
     submit = SubmitField('Submit')
+
+
+class PackageForm(FlaskForm):
+    tracking_number = StringField('Tracking Number', validators=[DataRequired()])
+    first_name = StringField('First Name', validators=[DataRequired()])
+    last_name = StringField('Last Name', validators=[DataRequired()])
+    weight = FloatField('Weight', validators=[DataRequired()])
+    description = StringField('Description')
+    status = SelectField('Status', choices=[
+        ('Received in Florida', 'Received in Florida'),
+        ('Available for Pickup', 'Available for Pickup'),
+        ('Collected', 'Collected'),
+        ('Delivered', 'Delivered'),
+        ('Held by Customs', 'Held by Customs'),
+        ('Customs Processing', 'Customs Processing'),
+        ('Package Refunded', 'Package Refunded'),
+        ('Disposed', 'Disposed')
+    ], validators=[DataRequired()])
+    sender = StringField('Sender')
+    date_received = DateField('Date Received', format='%Y-%m-%d', validators=[DataRequired()])
+    invoice = FileField('Invoice')
+    prealert_id = SelectField('Prealert', coerce=int, choices=[], validators=[Optional()])
 

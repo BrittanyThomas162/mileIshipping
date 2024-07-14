@@ -1,6 +1,8 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from . import db
+from datetime import datetime, timezone
+
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -15,6 +17,8 @@ class User(UserMixin, db.Model):
 
     authorized_pickup_list = db.relationship('AuthorizedPickUp', back_populates='user', lazy='dynamic')
     prealerts = db.relationship('Prealert', backref='user', lazy=True)
+    packages = db.relationship('Package', back_populates='user', lazy=True)
+    action_required = db.relationship('ActionRequired', back_populates='user', lazy=True)
 
     def __init__(self, first_name, last_name, email, phone, password, role='customer'):
         self.first_name = first_name
@@ -75,3 +79,41 @@ class Prealert(db.Model):
     description = db.Column(db.String(255), nullable=True)
     value = db.Column(db.Float, nullable=True)
     invoice = db.Column(db.String(255), nullable=True)
+    
+
+class Package(db.Model):
+    __tablename__ = 'packages'
+    id = db.Column(db.Integer, primary_key=True)
+    tracking_number = db.Column(db.String(100), nullable=False)
+    first_name = db.Column(db.String(80), nullable=False)
+    last_name = db.Column(db.String(80), nullable=False)
+    item_number = db.Column(db.String(20), unique=True, nullable=False)
+    weight = db.Column(db.Float, nullable=False)
+    description = db.Column(db.String(255), nullable=True)
+    status = db.Column(db.String(50), nullable=False)
+    sender = db.Column(db.String(100), nullable=True)
+    date_received = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    invoice = db.Column(db.String(255), nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+
+    user = db.relationship('User', back_populates='packages')
+
+
+class ActionRequired(db.Model):
+    __tablename__ = 'action_required'
+    id = db.Column(db.Integer, primary_key=True)
+    tracking_number = db.Column(db.String(100), nullable=False)
+    first_name = db.Column(db.String(80), nullable=False)
+    last_name = db.Column(db.String(80), nullable=False)
+    item_number = db.Column(db.String(20), unique=True, nullable=False)
+    weight = db.Column(db.Float, nullable=False)
+    description = db.Column(db.String(255), nullable=True)
+    status = db.Column(db.String(50), nullable=False)
+    sender = db.Column(db.String(100), nullable=True)
+    date_received = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    invoice = db.Column(db.String(255), nullable=True)
+    reason = db.Column(db.String(255), nullable=False)
+    action_needed = db.Column(db.String(255), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+
+    user = db.relationship('User', back_populates='action_required')

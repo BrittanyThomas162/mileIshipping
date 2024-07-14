@@ -1,0 +1,65 @@
+{% extends "base.html" %} {% block main %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      {% include 'flash_messages.html' %}
+      <div class="card">
+        <div class="card-body">
+          <h3 class="card-title text-center">Update Package</h3>
+          <form method="POST" enctype="multipart/form-data">
+            {{ form.csrf_token }}
+            <div class="mb-3">
+              {{ form.prealert_id.label(class="form-label") }} {{
+              form.prealert_id(class="form-select", id="prealert_id") }}
+            </div>
+            <div class="mb-3">
+              {{ form.tracking_number.label(class="form-label") }} {{
+              form.tracking_number(class="form-control", id="tracking_number")
+              }}
+            </div>
+            <div class="mb-3">
+              {{ form.first_name.label(class="form-label") }} {{
+              form.first_name(class="form-control", id="first_name") }}
+            </div>
+            <div class="mb-3">
+              {{ form.last_name.label(class="form-label") }} {{
+              form.last_name(class="form-control", id="last_name") }}
+            </div>
+            <div class="mb-3">
+              {{ form.weight.label(class="form-label") }} {{
+              form.weight(class="form-control", id="weight") }}
+            </div>
+            <div class="mb-3">
+              {{ form.description.label(class="form-label") }} {{
+              form.description(class="form-control", id="description") }}
+            </div>
+            <div class="mb-3">
+              {{ form.status.label(class="form-label") }} {{
+              form.status(class="form-select") }}
+            </div>
+            <div class="mb-3">
+              {{ form.sender.label(class="form-label") }} {{
+              form.sender(class="form-control", id="sender") }}
+            </div>
+            <div class="mb-3">
+              {{ form.date_received.label(class="form-label") }} {{
+              form.date_received(class="form-control") }}
+            </div>
+            <div class="mb-3">
+              {{ form.invoice.label(class="form-label") }} {{
+              form.invoice(class="form-control") }}
+              <a id="invoice_link" href="" target="_blank" class="d-none"
+                >View Invoice</a
+              >
+            </div>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %} {% block js %}
+<script src="{{ url_for('static', filename='js/autofill_prealert.js') }}"></script>
+{% endblock %}

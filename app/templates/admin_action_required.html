@@ -1,0 +1,98 @@
+{% extends "base.html" %} {% block main %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      {% include 'flash_messages.html' %}
+      <div class="card">
+        <div class="card-body">
+          <h3 class="card-title text-center">Action Required</h3>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Tracking Number</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Item Number</th>
+                <th>Weight</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Reason</th>
+                <th>Action Needed</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for action in actions %}
+              <tr>
+                <td>{{ action.tracking_number }}</td>
+                <td>{{ action.first_name }}</td>
+                <td>{{ action.last_name }}</td>
+                <td>{{ action.item_number }}</td>
+                <td>{{ action.weight }}</td>
+                <td>{{ action.description }}</td>
+                <td>{{ action.status }}</td>
+                <td>{{ action.reason }}</td>
+                <td>{{ action.action_needed }}</td>
+                <td>
+                  <form method="POST">
+                    <input
+                      type="hidden"
+                      name="action_id"
+                      value="{{ action.id }}"
+                    />
+                    <select name="status" class="form-select">
+                      <option value="Available for Pickup">
+                        Available for Pickup
+                      </option>
+                      <option value="Received in Florida">
+                        Received in Florida
+                      </option>
+                      <option value="Collected">Collected</option>
+                      <option value="Delivered">Delivered</option>
+                      <option value="Held by Customs">Held by Customs</option>
+                      <option value="Customs Processing">
+                        Customs Processing
+                      </option>
+                      <option value="Package Refunded">Package Refunded</option>
+                      <option value="Disposed">Disposed</option>
+                    </select>
+                    <button
+                      type="submit"
+                      name="update_status"
+                      class="btn btn-warning btn-sm mt-1"
+                    >
+                      Update Status
+                    </button>
+                    <select name="user_id" class="form-select mt-1">
+                      {% for user in users %}
+                      <option value="{{ user.id }}">
+                        {{ user.first_name }} {{ user.last_name }}
+                      </option>
+                      {% endfor %}
+                    </select>
+                    <button
+                      type="submit"
+                      name="update_user"
+                      class="btn btn-info btn-sm mt-1"
+                    >
+                      Update User
+                    </button>
+                    <button
+                      type="submit"
+                      name="resolve"
+                      class="btn btn-success btn-sm mt-1"
+                    >
+                      Resolve
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
